@@ -19,7 +19,10 @@ type config struct {
 	port int
 	env  string
 	db   struct {
-		dsn string
+		dsn           string
+		maxOpensConns int
+		maxIdleConns  int
+		maxIdleTime   string
 	}
 }
 
@@ -35,6 +38,12 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 4000, "API listen port")
 	flag.StringVar(&cfg.env, "env", "dev", "Environment (dev|stag|prod)")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("GREENLIGHT_DB_DSN"), "PostgreSQL DSN")
+
+	// Read connection pool options
+	flag.IntVar(&cfg.db.maxOpensConns, "db-max-open-conns", 25, "PSQL max opens connection")
+	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PSQL max idele connections")
+	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PSQL max connection idle time")
+
 	flag.Parse()
 
 	// Create stdout logger
@@ -72,6 +81,20 @@ func openDB(cfg config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Set maximum number of open (in-use + idle) connections in pool
+	//passing 0 value mean there is no limit
+	db.SetMaxOpenConns(cfg.db.maxOpensConns)
+
+	// Set maximum number of idle connection in pool (0 - no limit)
+	db.SetMaxIdleConns(cfg.db.maxIdleConns)
+
+	// Use time.ParseDuration() to convert string to idle timeout
+	duration, err := time.ParseDuration(cfg.db.maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+	db.SetConnMaxIdleTime(duration)
 
 	//Create context with 5-second deadline
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
