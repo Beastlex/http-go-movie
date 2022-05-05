@@ -18,6 +18,7 @@ func (app *application) routes() *httprouter.Router {
 	rotuter.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckerHandler)
 	rotuter.HandlerFunc(http.MethodPost, "/v1/movies", app.createMovieHandler)
 	rotuter.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.showMovieHandler)
+	rotuter.HandlerFunc(http.MethodPut, "/v1/movies/:id", app.updateMovieHandler)
 
 	return rotuter
 }
