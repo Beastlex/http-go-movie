@@ -2,9 +2,18 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"http-go-movie/internal/validator"
 	"time"
 )
+
+var (
+	ErrRecordNotFound = errors.New("record not found")
+)
+
+type Models struct {
+	Movies MovieModel
+}
 
 type Movie struct {
 	ID        int64     `json:"id"`
@@ -51,4 +60,10 @@ func (m MovieModel) Update(movie *Movie) error {
 
 func (m MovieModel) Delete(id int64) error {
 	return nil
+}
+
+func NewModels(db *sql.DB) Models {
+	return Models{
+		Movies: MovieModel{DB: db},
+	}
 }
