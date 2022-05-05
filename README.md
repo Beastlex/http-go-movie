@@ -21,3 +21,8 @@ Create migration with golang-migrate tool
 ```console
 migrate create -seq -ext=.sql -dir=./migrations create_movies_table
 ```
+
+After fill migrations file
+```console
+migrate -path=./migrations -database=$GREENLIGHT_DB_DSN up
+```
