@@ -189,7 +189,7 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 			&movie.Year,
 			&movie.Runtime,
 			pq.Array(&movie.Genres),
-			&movie.Version
+			&movie.Version,
 		)
 		if err != nil {
 			return nil, err
